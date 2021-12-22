@@ -1,0 +1,1 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/wb1mfb2mtsgv9hm6?svg=true)](https://ci.appveyor.com/project/nikolaikop/debitcard)
