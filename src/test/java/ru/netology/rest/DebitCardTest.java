@@ -30,6 +30,7 @@ public class DebitCardTest {
         options.addArguments("--no-sandbox");
         options.addArguments("--headless");
         driver = new ChromeDriver(options);
+        driver.get("http://localhost:9999");
     }
 
     @AfterEach
@@ -42,7 +43,6 @@ public class DebitCardTest {
 
     @Test
     void shouldSendRequest() {
-        driver.get("http://localhost:9999");
         WebElement form = driver.findElement(By.cssSelector("[class] form"));
         form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Петр Сидорович");
         form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+71234567890");
@@ -53,8 +53,7 @@ public class DebitCardTest {
     }
 
     @Test
-    void shouldntSendWithoutName() {
-        driver.get("http://localhost:9999");
+    void shouldntSendWithIncorrectName() {
         WebElement form = driver.findElement(By.cssSelector("[class] form"));
         form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Sidorov");
         form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+71234567890");
@@ -66,8 +65,7 @@ public class DebitCardTest {
     }
 
     @Test
-    void shouldntSendWithIncorrectName() {
-        driver.get("http://localhost:9999");
+    void shouldntSendWithoutName() {
         WebElement form = driver.findElement(By.cssSelector("[class] form"));
         form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+71234567890");
         form.findElement(By.cssSelector("[data-test-id='agreement']")).click();
@@ -79,7 +77,6 @@ public class DebitCardTest {
 
     @Test
     void numberShouldContain11Symbols() {
-        driver.get("http://localhost:9999");
         WebElement form = driver.findElement(By.cssSelector("[class] form"));
         form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Петр Сидорович");
         form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+7123456789");
@@ -87,6 +84,28 @@ public class DebitCardTest {
         form.findElement(By.cssSelector("[type=button]")).click();
         String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub")).getText().trim();
         String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        assertEquals(expected, text);
+    }
+
+    @Test
+    void numberCanNotBeEmpty() {
+        WebElement form = driver.findElement(By.cssSelector("[class] form"));
+        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Петр Сидорович");
+        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
+        form.findElement(By.cssSelector("[type=button]")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub")).getText().trim();
+        String expected = "Поле обязательно для заполнения";
+        assertEquals(expected, text);
+    }
+
+    @Test
+    void shouldntSendWithoutAgreement() {
+        WebElement form = driver.findElement(By.cssSelector("[class] form"));
+        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Петр Сидорович");
+        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+71234567890");
+        form.findElement(By.cssSelector("[type=button]")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='agreement'].input_invalid")).getText().trim();
+        String expected = "Я соглашаюсь с условиями обработки и использования моих персональных данных и разрешаю сделать запрос в бюро кредитных историй";
         assertEquals(expected, text);
     }
 
